@@ -1,0 +1,2 @@
+# GifTastic
+Gif generating API
