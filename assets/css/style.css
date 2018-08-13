@@ -1,3 +1,13 @@
+
 #gif-form {
     float: right;
+}
+.card-text {
+    text-align: center;
+}
+
+.card,
+.gif-button {
+    /* width: 18rem; */
+    display: inline-block;
 }
