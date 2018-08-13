@@ -1,9 +1,16 @@
 
-#gif-form {
-    float: right;
+html,
+body {
+    margin:0;
 }
-.card-text {
-    text-align: center;
+
+body {
+    background-image: url(../images/vintage-concrete.png)
+}
+
+.card-title {
+    border-bottom: 2px solid black;
+    padding: 10px;
 }
 
 .card,

@@ -17,28 +17,44 @@ let giphyAPI = {
             // Only taking action if the photo has an appropriate rating
             if (results[i].rating !== "r" && results[i].rating !== "pg-13") {
               // Creating a div with the class "card" for bootstrap
-              const gifDiv = $("<div class='card'>");
+              const gifDiv = $("<div class='card text-center mr-2'>");
               // Storing the result item's rating to append later
-              const rating = results[i].rating;
+              const rating = results[i].rating.toUpperCase();
               // Creating a paragraph tag with the result item's rating
-              const para = $(`<p class="card-text">`).text("Rating: " + rating);
-
+              const paraRating = $(`<p class="card-text">`).text("Rating: " + rating);
               // Creating an image tag
               const gifImage = $("<img>");
-
-              // Giving the image tag an src attribute of a proprty pulled off the
-              // result item
+              // creating rows after title
+              const textRow = $(`<div class="row">`)
+              // half of the row to hold the Download button and the favorites button
+              const buttonsRow =$(`<div class="col-6">`)
+              // 2nd half where the rating paragraph will go
+              const paraRow = $(`<div class="col-6">`)
+              //create const for the buttons to include
+              const downloadButton = $(`<a download href=${results[i].images.fixed_height.url}><i class="fas fa-download">`)
+              const favoritesButton =$(`<button class="favorite" data-index="${i}"><i class="far fa-star">`)
+              // append buttons to the button half of the row
+              buttonsRow.append(downloadButton)
+              buttonsRow.append(favoritesButton)
+              // append the rating paragraph to the para row
+              paraRow.append(paraRating)
+              // Append them both to the "text row"
+              textRow.append(buttonsRow)
+              textRow.append(paraRow)
+              // Give Gif image a still, animate, state and still source variables to call when the Gif is clicked on
               gifImage.attr({
                 "data-still":results[i].images.fixed_height_still.url,
                 "data-animate":results[i].images.fixed_height.url,
                 "data-state":"still",
                 "src": results[i].images.fixed_height_still.url});
+              // add class for the bootstrap card
               gifImage.addClass("card-img-top gif")
 
               // Appending the paragraph and gifImage we created to the "gifDiv" div we created
               gifDiv.append(gifImage);
-              gifDiv.append(para);
-
+              gifDiv.append(`<div class="body">`)
+              gifDiv.append(`<h5 class="card-title">${results[i].title}`)
+              gifDiv.append(textRow);
               // Prepending the gifDiv to the "#gifs-appear-here" div in the HTML
               $("#gif-view").prepend(gifDiv);
             }
@@ -49,18 +65,24 @@ let giphyAPI = {
     renderButtons: function() {
       // Deleting the prior butotns before adding new buttons
       $("#buttons-view").empty();
-
+      $("#buttons-view").append(`<button class="mr-2 mt-2 gif-btn btn btn-secondary" data-name="favorites">Favorites</button>`)
       // Looping through the array of active gifs
       for (let i = 0; i < giphyAPI.gifsArray.length; i++) {
-        const button = $("<button>");
+        const groupButton =$(`<div class="btn-group mr-2 mt-2" role="group">`)
+        const gifButton = $("<button>");
         // Adding a class of movie-btn to our button
-        button.addClass("gif-btn btn btn-secondary");
+        gifButton.addClass("gif-btn btn btn-secondary");
         // Adding a data-attribute
-        button.attr("data-name", giphyAPI.gifsArray[i]);
+        gifButton.attr("data-name", giphyAPI.gifsArray[i]);
         // Providing the initial button text
-        button.text(giphyAPI.gifsArray[i]);
+        gifButton.text(giphyAPI.gifsArray[i]);
         // Adding the button to the buttons-view div
-        $("#buttons-view").append(button);
+        const delButton = $(`<button class="btn btn-secondary delete" data-index=${i}>`)
+        delButton.text("X");
+        
+        $(groupButton).append(gifButton)
+        $(groupButton).append(delButton);
+        $("#buttons-view").append(groupButton);
       }     
     },
     gifState: function() {
@@ -93,13 +115,29 @@ let giphyAPI = {
       giphyAPI.functions.renderButtons();
       }
       $(`#gif-input`).text("")
+    },
+    deleteButton: function() {
+      let gifsArray2 = giphyAPI.gifsArray;
+      let currentIndex = $(this).attr("data-index");
+
+      gifsArray2.splice(currentIndex, 1);
+      giphyAPI.gifsArray = gifsArray2;
+
+      giphyAPI.functions.renderButtons();
     }
   },
-  gifsArray: ["Puppies", "Penguins", "kittens", "tigers"]
+  gifsArray: ["Puppies", "Penguins", "Kittens", "Tigers"],
+  favorites: [],
 }
 
+  // Event for the adding a gif button
   $("#add-gif").on("click", giphyAPI.functions.addGifButton)
+  // Event for when a button is selected, display the gifs
   $(document).on("click", ".gif-btn", giphyAPI.functions.displayGifInfo);
+  // Event to start the gif image to play
   $(document).on("click", ".gif", giphyAPI.functions.gifState)
+  // Event for the x button next to gifs
+  $(document).on("click", ".delete", giphyAPI.functions.deleteButton)
 
+  // Render the initial Buttons
   giphyAPI.functions.renderButtons();
