@@ -2,9 +2,17 @@ let giphyAPI = {
   functions: {
     displayGifInfo: function() {
         let search = $(this).attr("data-name");
-        console.log(search);
-          const queryURL = `https://api.giphy.com/v1/gifs/search?api_key=ET5w0OlR0mOjSbTget1iYZ31ELsPmcV8&q=${search}&limit=10`;
+        let limit = 10;
+
+        if ( search === giphyAPI.properties.currentSearch){
+          giphyAPI.properties.currentSearchCount += limit;
+        } else {
+          giphyAPI.properties.currentSearchCount = limit
           $(`#gif-view`).empty()
+        }
+        giphyAPI.properties.currentSearch = search
+        console.log(search);
+          const queryURL = `https://api.giphy.com/v1/gifs/search?api_key=ET5w0OlR0mOjSbTget1iYZ31ELsPmcV8&q=${search}&limit=${giphyAPI.properties.currentSearchCount}`;
           // Create promise on queryURL
       $.ajax({
           url: queryURL,
@@ -12,8 +20,10 @@ let giphyAPI = {
         })
         .then((response) => {
           const results = response.data;
+          const iCount = (giphyAPI.properties.currentSearchCount <= 10) ? 0: (giphyAPI.properties.currentSearchCount -10);
+
           // Looping over every result item
-          for (let i = 0; i < results.length; i++) {
+          for (let i = iCount; i < results.length; i++) {
             // Only taking action if the photo has an appropriate rating
             if (results[i].rating !== "r" && results[i].rating !== "pg-13") {
               // Creating a div with the class "card" for bootstrap
@@ -24,6 +34,7 @@ let giphyAPI = {
               const paraRating = $(`<p class="card-text">`).text("Rating: " + rating);
               // Creating an image tag
               const gifImage = $("<img>");
+              const cardBody = $(`<div class="body">`)
               // creating rows after title
               const textRow = $(`<div class="row">`)
               // half of the row to hold the Download button and the favorites button
@@ -39,8 +50,8 @@ let giphyAPI = {
               // append the rating paragraph to the para row
               paraRow.append(paraRating)
               // Append them both to the "text row"
-              textRow.append(buttonsRow)
               textRow.append(paraRow)
+              textRow.append(buttonsRow)
               // Give Gif image a still, animate, state and still source variables to call when the Gif is clicked on
               gifImage.attr({
                 "data-still":results[i].images.fixed_height_still.url,
@@ -52,9 +63,9 @@ let giphyAPI = {
 
               // Appending the paragraph and gifImage we created to the "gifDiv" div we created
               gifDiv.append(gifImage);
-              gifDiv.append(`<div class="body">`)
-              gifDiv.append(`<h5 class="card-title">${results[i].title}`)
-              gifDiv.append(textRow);
+              gifDiv.append(cardBody)
+              cardBody.append(`<h5 class="card-title">${results[i].title}`)
+              cardBody.append(textRow);
               // Prepending the gifDiv to the "#gifs-appear-here" div in the HTML
               $("#gif-view").prepend(gifDiv);
             }
@@ -65,7 +76,8 @@ let giphyAPI = {
     renderButtons: function() {
       // Deleting the prior butotns before adding new buttons
       $("#buttons-view").empty();
-      $("#buttons-view").append(`<button class="mr-2 mt-2 gif-btn btn btn-secondary" data-name="favorites">Favorites</button>`)
+      //Appends the favorites button first to be used as a favorites storage
+      // $("#buttons-view").append(`<button class="mr-2 mt-2 favorites-btn btn btn-secondary" data-name="favorites">Favorites</button>`)
       // Looping through the array of active gifs
       for (let i = 0; i < giphyAPI.gifsArray.length; i++) {
         const groupButton =$(`<div class="btn-group mr-2 mt-2" role="group">`)
@@ -116,28 +128,46 @@ let giphyAPI = {
       }
       $(`#gif-input`).text("")
     },
+    favoriteGif: function() {
+
+    },
     deleteButton: function() {
       let gifsArray2 = giphyAPI.gifsArray;
       let currentIndex = $(this).attr("data-index");
 
+      if(gifsArray2[currentIndex] === giphyAPI.properties.currentSearch){
+        $(`#gif-view`).empty();
+      }
       gifsArray2.splice(currentIndex, 1);
       giphyAPI.gifsArray = gifsArray2;
 
       giphyAPI.functions.renderButtons();
-    }
+    },
+    clearButton: function() {
+      $(`#gif-view`).empty()
+    },
+    favoritesButton: function() {
+
+    },
+  },
+  properties: {
+    currentSearch: "",
+    currentSearchCount: "",
   },
   gifsArray: ["Puppies", "Penguins", "Kittens", "Tigers"],
   favorites: [],
 }
 
   // Event for the adding a gif button
-  $("#add-gif").on("click", giphyAPI.functions.addGifButton)
+  $("#add-gif").on("click", giphyAPI.functions.addGifButton);
+  // Event for the clear button
+  $("#clear-Button").on("click", giphyAPI.functions.clearButton);
   // Event for when a button is selected, display the gifs
   $(document).on("click", ".gif-btn", giphyAPI.functions.displayGifInfo);
   // Event to start the gif image to play
-  $(document).on("click", ".gif", giphyAPI.functions.gifState)
+  $(document).on("click", ".gif", giphyAPI.functions.gifState);
   // Event for the x button next to gifs
-  $(document).on("click", ".delete", giphyAPI.functions.deleteButton)
+  $(document).on("click", ".delete", giphyAPI.functions.deleteButton);
 
   // Render the initial Buttons
   giphyAPI.functions.renderButtons();
