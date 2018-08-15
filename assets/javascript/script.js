@@ -11,7 +11,6 @@ let giphyAPI = {
           $(`#gif-view`).empty()
         }
         giphyAPI.properties.currentSearch = search
-        console.log(search);
           const queryURL = `https://api.giphy.com/v1/gifs/search?api_key=ET5w0OlR0mOjSbTget1iYZ31ELsPmcV8&q=${search}&limit=${giphyAPI.properties.currentSearchCount}`;
           // Create promise on queryURL
       $.ajax({
@@ -43,10 +42,10 @@ let giphyAPI = {
               const paraRow = $(`<div class="col-6">`)
               //create const for the buttons to include
               const downloadButton = $(`<a download href=${results[i].images.fixed_height.url}><i class="fas fa-download">`)
-              const favoritesButton =$(`<button class="favorite" data-index="${i}"><i class="far fa-star">`)
+              // const favoritesButton =$(`<button class="favorite" data-index="${i}"><i class="far fa-star">`)
               // append buttons to the button half of the row
               buttonsRow.append(downloadButton)
-              buttonsRow.append(favoritesButton)
+              // buttonsRow.append(favoritesButton)
               // append the rating paragraph to the para row
               paraRow.append(paraRating)
               // Append them both to the "text row"
@@ -70,7 +69,6 @@ let giphyAPI = {
               $("#gif-view").prepend(gifDiv);
             }
           }
-          console.log(response)
         });
     },
     renderButtons: function() {
@@ -100,17 +98,14 @@ let giphyAPI = {
     gifState: function() {
       // The attr jQuery method allows us to get or set the value of any attribute on our HTML element
       let state = $(this).attr("data-state");
-      console.log(state);
       // If the clicked image's state is still, update its src attribute to what its data-animate value is.
       // Then, set the image's data-state to animate
       // Else set src to the data-still value
       if (state === "still") {
         $(this).attr("src", $(this).attr("data-animate"));
-        console.log($(this).attr("data-animate"))
         $(this).attr("data-state", "animate");
       } else {
         $(this).attr("src", $(this).attr("data-still"));
-        console.log($(this).attr("data-still"))
         $(this).attr("data-state", "still");
       }
     },
@@ -154,7 +149,7 @@ let giphyAPI = {
     currentSearch: "",
     currentSearchCount: "",
   },
-  gifsArray: ["Puppies", "Penguins", "Kittens", "Tigers"],
+  gifsArray: ["Puppies", "Adorable", "Kittens", "Funny"],
   favorites: [],
 }
 
